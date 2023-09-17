@@ -22,6 +22,7 @@ field =
     , destinations =
         [ { name = "Go north", location = "castle" }
         ]
+    , items = []
     }
 
 
@@ -32,6 +33,7 @@ castle =
     , destinations =
         [ { name = "Go south", location = "field" }
         ]
+    , items = []
     }
 
 
@@ -49,6 +51,13 @@ game =
 ---- MODEL ----
 
 
+type alias Player =
+    { name : String
+    , location : Location
+    , inventory : List InventoryItem
+    }
+
+
 type alias Destination =
     { name : String
     , location : Identifier
@@ -63,19 +72,25 @@ type alias Location =
     { id : Identifier
     , text : String
     , destinations : List Destination
+    , items : List InventoryItem
+    }
+
+
+type alias InventoryItem =
+    { name : String
     }
 
 
 type alias Model =
-    { currentLocation : Location
-    , locations : List Location
+    { locations : List Location
+    , player : Player
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { currentLocation = game.startLocation
-      , locations = game.locations
+    ( { locations = game.locations
+      , player = { name = "Player 1", location = game.startLocation, inventory = [] }
       }
     , Cmd.none
     )
@@ -93,16 +108,18 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GoToLocation locationId ->
-            ( { model | currentLocation = getLocation locationId model }
-            , Cmd.none
-            )
+            let
+                newLocation = getLocation locationId model
+            in
+            ( { model | player = { model.player | location = newLocation.id } }, Cmd.none )
+            
 
 
 getLocation : Identifier -> Model -> Location
 getLocation locationId model =
     List.filter (\location -> location.id == locationId) model.locations
         |> List.head
-        |> Maybe.withDefault model.currentLocation
+        |> Maybe.withDefault model.player.location
 
 
 
@@ -113,14 +130,8 @@ view : Model -> Html Msg
 view model =
     div []
         [ h1 [] [ text "Adventure Game" ]
-
-        -- , case model.currentLocation of
-        --     Nothing ->
-        --         text "Nope"
-        --     Just location ->
-        --         viewCurrentLocation location
-        , viewCurrentLocation model.currentLocation
-        , viewDestinations model.currentLocation.destinations
+        , viewCurrentLocation model.player.location
+        , viewDestinations model.player.location.destinations
         ]
 
 
