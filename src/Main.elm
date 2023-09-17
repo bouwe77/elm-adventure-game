@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, h1, h2, p, text)
+import Html exposing (Html, button, div, h1, p, text)
 import Html.Events exposing (onClick)
 
 
@@ -109,10 +109,13 @@ update msg model =
     case msg of
         GoToLocation locationId ->
             let
-                newLocation = getLocation locationId model
+                player =
+                    model.player
+
+                newLocation =
+                    getLocation locationId model
             in
-            ( { model | player = { model.player | location = newLocation.id } }, Cmd.none )
-            
+            ( { model | player = { player | location = newLocation } }, Cmd.none )
 
 
 getLocation : Identifier -> Model -> Location
