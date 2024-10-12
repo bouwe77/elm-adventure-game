@@ -1,0 +1,6 @@
+{
+  "name": "elm-adventure-game",
+  "scripts": {
+    "dev": "export NODE_OPTIONS=--openssl-legacy-provider && PORT=8992 elm-app start"
+  }
+}
